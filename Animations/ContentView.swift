@@ -31,14 +31,15 @@ struct ContentView: View {
                     Circle()
                         .fill(.yellow.shadow(.drop(color: .black.opacity(0.2), radius: 5)))
                         .frame(width: 70)
-//                        .scaleEffect(scale)
+                        .scaleEffect(scale)
                         .position(position)
                         .opacity(0.5)
                         .gesture(gestureHandler(0, { _ in }))
+                    let _ = print("position: ", position)
                 }
             }
             .onAppear {
-                position = .init(x: geometry.size.width * 0.5, y: 100)
+                position = .init(x: geometry.size.width * 0.5, y: 200)
             }
         }
     }
@@ -52,31 +53,35 @@ struct ContentView: View {
             coordinateSpace: .local
         )
         .onChanged { gesture in
-            if gesture.translation.height < 0 {
-                gestureOffset = gesture.translation
-                position =  gesture.location
-                if gestureOffset.height < -60 {
-                    print("Should be pulled")
-                } else {
-                    print("Should be put back")
-                }
+            if gesture.translation.height < -60 {
+                print("Should be pulled")
+            } else {
+                print("Should be put back")
             }
-            if gesture.translation.height > 0 {
-                gestureOffset = gesture.translation
-                position =  gesture.location
-            }
+        
+            gestureOffset = gesture.translation
+            position = .init(x: position.x, y: gesture.location.y)
             print(gestureOffset.height)
+//            print(gesture.translation.height)
+//            scale = min(1.0 + abs(gestureOffset.height) * 0.005, 3.5)
+//            print("scale", gestureOffset.height * 0.005)
             
         }
         .onEnded { value in
             withAnimation(.easeIn) {
-                if gestureOffset.height > 60 {
-                }
-                if gestureOffset.height < -100 {
-//                    isPulled.toggle()
+                if gestureOffset.height > -80 {
+                    isPulled = false
+                    position = .init(x: position.x, y: 200)
+                    print("ENDED: Should be put back")
+                    scale = 1.0
+                } else {
+                    isPulled = true
+                    print("ENDED: Should be pulled")
+                    position = .init(x: position.x, y: -180)
+                    scale = 3.5
                 }
                 
-//                gestureOffset = isPulled ? .init(width: gestureOffset.width, height: 200) : .zero
+                
             }
         }
         /*
